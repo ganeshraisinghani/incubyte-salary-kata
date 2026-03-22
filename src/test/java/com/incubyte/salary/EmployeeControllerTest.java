@@ -1,6 +1,7 @@
 package com.incubyte.salary;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.incubyte.salary.controller.EmployeeController;
 import com.incubyte.salary.model.Employee;
 import com.incubyte.salary.service.EmployeeService;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest
+@WebMvcTest(EmployeeController.class) // Only this annotation
 class EmployeeControllerTest {
 
     @Autowired

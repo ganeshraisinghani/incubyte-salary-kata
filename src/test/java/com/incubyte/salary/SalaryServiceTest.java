@@ -4,13 +4,29 @@ import com.incubyte.salary.model.Employee;
 import com.incubyte.salary.repository.EmployeeRepository;
 import com.incubyte.salary.service.SalaryService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class SalaryServiceTest {
+
+    @Mock
+    private EmployeeRepository employeeRepository;
+
+    @InjectMocks
+    private SalaryService salaryService;
 
     private final EmployeeRepository repository = Mockito.mock(EmployeeRepository.class);
     private final SalaryService service = new SalaryService(repository);
