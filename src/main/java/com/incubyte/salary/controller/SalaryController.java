@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/salary")
 @RequiredArgsConstructor
@@ -15,8 +17,9 @@ public class SalaryController {
 
     @GetMapping("/calculate/{employeeId}")
     public ResponseEntity<SalaryResponse> calculate(@PathVariable Long employeeId) {
-        SalaryResponse resp = service.calculateSalary(employeeId);
-        return resp != null ? ResponseEntity.ok(resp) : ResponseEntity.notFound().build();
+        return service.calculateSalary(employeeId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/metrics/country/{country}")
@@ -26,8 +29,8 @@ public class SalaryController {
     }
 
     @GetMapping("/metrics/job/{jobTitle}")
-    public ResponseEntity<Double> avgSalaryByJob(@PathVariable String jobTitle) {
-        Double avg = service.averageSalaryByJob(jobTitle);
-        return ResponseEntity.ok(avg);
+    public ResponseEntity<BigDecimal> avgSalaryByJob(@PathVariable String jobTitle) {
+        BigDecimal avg = service.averageSalaryByJob(jobTitle);
+        return ResponseEntity.ok(avg); // Now returns BigDecimal for precision
     }
 }

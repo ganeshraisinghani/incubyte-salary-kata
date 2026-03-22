@@ -2,8 +2,10 @@ package com.incubyte.salary.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 
 @Entity
+@Table(name = "employees")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,8 +16,14 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String fullName;
+
     private String jobTitle;
+
+    @Column(nullable = false)
     private String country;
-    private Double salary;
+
+    @Column(nullable = false)
+    private BigDecimal salary; // Use BigDecimal for financial precision
 }

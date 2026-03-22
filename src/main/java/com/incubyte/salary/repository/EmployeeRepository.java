@@ -6,9 +6,16 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository for Employee entities.
+ * Extends JpaRepository to provide standard CRUD operations.
+ */
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-    List<Employee> findByCountry(String country);
-    List<Employee> findByJobTitle(String jobTitle);
 
+    // Useful for regional tax calculations in the Salary Kata
+    List<Employee> findByCountry(String country);
+
+    // Useful for role-based bonus or deduction logic
+    List<Employee> findByJobTitle(String jobTitle);
 }

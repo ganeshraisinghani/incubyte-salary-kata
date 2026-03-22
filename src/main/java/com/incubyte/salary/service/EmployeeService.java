@@ -1,10 +1,13 @@
 package com.incubyte.salary.service;
 
+import com.incubyte.salary.dto.EmployeeDto;
 import com.incubyte.salary.model.Employee;
 import com.incubyte.salary.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -12,33 +15,39 @@ public class EmployeeService {
 
     private final EmployeeRepository repository;
 
-    public Employee create(Employee employee) {
+    public Employee create(EmployeeDto dto) {
+        Employee employee = Employee.builder()
+                .fullName(dto.getFullName())
+                .jobTitle(dto.getJobTitle())
+                .country(dto.getCountry())
+                .salary(dto.getSalary()) // Now correctly handling BigDecimal
+                .build();
         return repository.save(employee);
     }
 
-    public Employee get(Long id) {
-        return repository.findById(id).orElse(null);
+    public Optional<Employee> get(Long id) {
+        return repository.findById(id);
     }
 
     public List<Employee> getAll() {
         return repository.findAll();
     }
 
-    public Employee update(Long id, Employee updated) {
+    public Optional<Employee> update(Long id, EmployeeDto updatedDto) {
         return repository.findById(id)
                 .map(emp -> {
-                    emp.setFullName(updated.getFullName());
-                    emp.setJobTitle(updated.getJobTitle());
-                    emp.setCountry(updated.getCountry());
-                    emp.setSalary(updated.getSalary());
+                    emp.setFullName(updatedDto.getFullName());
+                    emp.setJobTitle(updatedDto.getJobTitle());
+                    emp.setCountry(updatedDto.getCountry());
+                    emp.setSalary(updatedDto.getSalary());
                     return repository.save(emp);
-                }).orElse(null);
+                });
     }
 
-    public Employee delete(Long id) {
+    public boolean delete(Long id) {
         return repository.findById(id).map(emp -> {
             repository.delete(emp);
-            return emp;
-        }).orElse(null);
+            return true;
+        }).orElse(false);
     }
 }

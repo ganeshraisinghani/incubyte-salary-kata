@@ -1,58 +1,69 @@
-package com.incubyte.salary;
 
 import com.incubyte.salary.model.Employee;
 import com.incubyte.salary.repository.EmployeeRepository;
 import com.incubyte.salary.service.SalaryService;
+import com.incubyte.salary.dto.SalaryResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat; // Better for BigDecimal
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ExtendWith(MockitoExtension.class)
+@ExtendWith(MockitoExtension.class) // Cleanest way to test Services
 class SalaryServiceTest {
 
     @Mock
-    private EmployeeRepository employeeRepository;
+    private EmployeeRepository repository;
 
     @InjectMocks
-    private SalaryService salaryService;
-
-    private final EmployeeRepository repository = Mockito.mock(EmployeeRepository.class);
-    private final SalaryService service = new SalaryService(repository);
+    private SalaryService service;
 
     @Test
-    void shouldCalculateSalaryForIndia() {
-        Employee emp = new Employee(1L, "Alice", "Developer", "India", 1000.0);
+    void shouldCalculateSalaryForIndiaWithTenPercentTax() {
+        // Arrange
+        BigDecimal gross = new BigDecimal("1000.00");
+        Employee emp = Employee.builder()
+                .id(1L)
+                .fullName("Alice")
+                .country("India")
+                .salary(gross)
+                .build();
 
-        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(emp));
+        when(repository.findById(1L)).thenReturn(Optional.of(emp));
 
-        var result = service.calculateSalary(1L);
+        // Act
+        var result = service.calculateSalary(1L).orElseThrow();
 
-        assertEquals(1000.0, result.getGrossSalary());
-        assertEquals(100.0, result.getDeduction());
-        assertEquals(900.0, result.getNetSalary());
+        // Assert - Using isEqualByComparingTo to handle BigDecimal scale (e.g., 100.0 vs 100.00)
+        assertThat(result.getGrossSalary()).isEqualByComparingTo(gross);
+        assertThat(result.getDeduction()).isEqualByComparingTo(new BigDecimal("100.00"));
+        assertThat(result.getNetSalary()).isEqualByComparingTo(new BigDecimal("900.00"));
     }
 
     @Test
-    void shouldReturnZeroDeductionForOtherCountries() {
-        Employee emp = new Employee(1L, "Bob", "Dev", "Germany", 1000.0);
+    void shouldReturnZeroDeductionForUnknownCountries() {
+        // Arrange
+        BigDecimal gross = new BigDecimal("1000.00");
+        Employee emp = Employee.builder()
+                .id(2L)
+                .fullName("Bob")
+                .country("Germany")
+                .salary(gross)
+                .build();
 
-        Mockito.when(repository.findById(1L)).thenReturn(Optional.of(emp));
+        when(repository.findById(2L)).thenReturn(Optional.of(emp));
 
-        var result = service.calculateSalary(1L);
+        // Act
+        var result = service.calculateSalary(2L).orElseThrow();
 
-        assertEquals(0.0, result.getDeduction());
-        assertEquals(1000.0, result.getNetSalary());
+        // Assert
+        assertThat(result.getDeduction()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(result.getNetSalary()).isEqualByComparingTo(gross);
     }
 }

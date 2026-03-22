@@ -1,0 +1,16 @@
+# Compiled Java classes
+target/
+
+# Database files
+data/
+*.db
+
+# IDE specific files
+.idea/
+.settings/
+.classpath
+.project
+*.iml
+
+# Logs
+*.log
